@@ -5,9 +5,12 @@ import com.serivce.IHotelSearchSerivce;
 import com.util.EmptyUtils;
 import com.util.Page;
 import com.util.VO.ItripHotelVO;
+import com.util.VO.SearchHotCityVO;
 import com.util.VO.SearchHotelVO;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
@@ -37,6 +40,20 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
                 strBuffer.append("keyword : "+searchHotelVO.getKeywords());
             }
         }
+        //判断价格
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getMaxPrice())){
+            solrQuery.addFilterQuery("minPrice:"+"[* TO "+searchHotelVO.getMaxPrice()+"]");
+        }
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getMinPrice())){
+            solrQuery.addFilterQuery("minPrice:"+"["+searchHotelVO.getMinPrice()+" TO *]");
+        }
+        //判断排序
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getAscSort())){
+            solrQuery.setSort(searchHotelVO.getAscSort(),SolrQuery.ORDER.asc);
+        }
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getDescSort())){
+            solrQuery.setSort(searchHotelVO.getDescSort(),SolrQuery.ORDER.desc);
+        }
         //判断查询语句
         if(EmptyUtils.isNotEmpty(strBuffer.toString())){
             solrQuery.setQuery(strBuffer.toString());
@@ -44,4 +61,19 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
         Page<ItripHotelVO> itripHotelVOPage=itripHotelVOBaseQuery.queryPage(solrQuery,pageNo,pageSize,ItripHotelVO.class);
         return itripHotelVOPage;
     }
+
+    @Override
+    public List<ItripHotelVO> findHotCityAll(Integer cityId, Integer pageSize) throws Exception {
+       SolrQuery solrQuery=new SolrQuery("*:*");
+       //判断城市id
+       if(EmptyUtils.isNotEmpty(cityId)){
+           solrQuery.addFilterQuery("cityId : "+cityId);
+       }else {
+           return null;
+       }
+       List<ItripHotelVO> itripHotelVOList=itripHotelVOBaseQuery.queryList(solrQuery,pageSize,ItripHotelVO.class);
+        return itripHotelVOList;
+    }
+
+
 }
