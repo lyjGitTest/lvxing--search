@@ -45,14 +45,17 @@ public class HotelSearchController {
 
     }
     @RequestMapping(value = "/searchItripHotelListByHotCity")
-    public Dto<Page<ItripHotelVO>> searchItripHotelListByHotCity(@RequestBody SearchHotCityVO searchHotCityVO){
+    public Dto searchItripHotelListByHotCity(@RequestBody SearchHotCityVO searchHotCityVO){
         System.out.println("查询热门城市方法进入。。。。");
         if(EmptyUtils.isEmpty(searchHotCityVO.getCityId()) || EmptyUtils.isEmpty(searchHotCityVO)){
             return DtoUtil.returnFail("热门城市id不能为空","20004");
         }
         try {
-            List<ItripHotelVO> list=iHotelSearchSerivce.findHotCityAll(searchHotCityVO.getCityId(),searchHotCityVO.getCount());
-       if(list.size()==0){
+          //SearchHotelVO searchHotelVO=new SearchHotelVO();
+           List<ItripHotelVO> list=iHotelSearchSerivce.findHotCityAll(searchHotCityVO.getCityId(),searchHotCityVO.getCount());
+       //Page<ItripHotelVO> list=iHotelSearchSerivce.findHotelPageAll(searchHotelVO,searchHotCityVO.getCityId(),searchHotCityVO.getCount());
+            //if(list.getPageSize()==0){
+            if(list.size()==0){
            return DtoUtil.returnFail("没有找到热门城市酒店","111111");
        }else {
            return DtoUtil.returnDataSuccess(list);

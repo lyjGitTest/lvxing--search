@@ -2,6 +2,7 @@ package com.serivce.Impl;
 
 import com.mapper.BaseQuery;
 import com.serivce.IHotelSearchSerivce;
+import com.util.DtoUtil;
 import com.util.EmptyUtils;
 import com.util.Page;
 import com.util.VO.ItripHotelVO;
@@ -32,13 +33,39 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
         if(EmptyUtils.isNotEmpty(searchHotelVO.getHotelLevel())){
           solrQuery.addFilterQuery("hotelLevel : "+searchHotelVO.getHotelLevel()+"");
         }
+        //判断商圈TradeAreaIds
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getTradeAreaIds())) {
+            solrQuery.addFilterQuery("tradingAreaIds :" + "*," + searchHotelVO.getTradeAreaIds() + ",*");
+        }
         //判断keyword
         if(EmptyUtils.isNotEmpty(searchHotelVO.getKeywords())){
             if(flag==1){
-                strBuffer.append(" AND keyword : "+searchHotelVO.getKeywords());
+                strBuffer.append("AND keyword : "+searchHotelVO.getKeywords());
+                String str="AND keyword : null";
+                if(strBuffer.indexOf(str)!= -1){
+                    strBuffer.delete(strBuffer.indexOf(str),strBuffer.length());
+                }
             }else{
                 strBuffer.append("keyword : "+searchHotelVO.getKeywords());
             }
+        }
+        //酒店特色
+        if(EmptyUtils.isNotEmpty(searchHotelVO.getFeatureIds())){
+            StringBuffer str=new StringBuffer("(");
+            int fr=0;
+            String featureArr[]=searchHotelVO.getFeatureIds().split(",");
+            for (String featuresids:featureArr){
+                if(fr==0){
+                    str.append("featureIds:"+"*,"+featuresids+",*");
+                }else {
+                    str.append(" OR featureIds:"+"*,"+featuresids+",*");
+                }
+                fr++;
+            }
+            str.append(")");
+            System.out.println("str111======="+str);
+            solrQuery.addFilterQuery(str.toString());
+            System.out.println("sorequrey======="+solrQuery.toString());
         }
         //判断价格
         if(EmptyUtils.isNotEmpty(searchHotelVO.getMaxPrice())){
@@ -47,6 +74,7 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
         if(EmptyUtils.isNotEmpty(searchHotelVO.getMinPrice())){
             solrQuery.addFilterQuery("minPrice:"+"["+searchHotelVO.getMinPrice()+" TO *]");
         }
+
         //判断排序
         if(EmptyUtils.isNotEmpty(searchHotelVO.getAscSort())){
             solrQuery.setSort(searchHotelVO.getAscSort(),SolrQuery.ORDER.asc);
@@ -56,24 +84,23 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
         }
         //判断查询语句
         if(EmptyUtils.isNotEmpty(strBuffer.toString())){
+
             solrQuery.setQuery(strBuffer.toString());
+            System.out.println("strBuffer000000====="+solrQuery.toString());
         }
         Page<ItripHotelVO> itripHotelVOPage=itripHotelVOBaseQuery.queryPage(solrQuery,pageNo,pageSize,ItripHotelVO.class);
         return itripHotelVOPage;
     }
-
-    @Override
-    public List<ItripHotelVO> findHotCityAll(Integer cityId, Integer pageSize) throws Exception {
+   public List<ItripHotelVO> findHotCityAll(Integer cityId, Integer pageSize) throws Exception {
        SolrQuery solrQuery=new SolrQuery("*:*");
        //判断城市id
        if(EmptyUtils.isNotEmpty(cityId)){
            solrQuery.addFilterQuery("cityId : "+cityId);
+
        }else {
            return null;
        }
        List<ItripHotelVO> itripHotelVOList=itripHotelVOBaseQuery.queryList(solrQuery,pageSize,ItripHotelVO.class);
         return itripHotelVOList;
     }
-
-
 }
