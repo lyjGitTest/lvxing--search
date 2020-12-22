@@ -23,7 +23,7 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
         StringBuffer strBuffer=new StringBuffer();
         //判断标识符
         int flag=0;
-
+        int fr=0;
         //判断地点是否为空
         if (EmptyUtils.isNotEmpty(searchHotelVO.getDestination())){
             strBuffer.append("destination : "+searchHotelVO.getDestination());
@@ -47,21 +47,22 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
                 }
             }else{
                 strBuffer.append("keyword : "+searchHotelVO.getKeywords());
+         fr=1;
             }
         }
         //酒店特色
         if(EmptyUtils.isNotEmpty(searchHotelVO.getFeatureIds())){
             StringBuffer str=new StringBuffer("(");
-            int fr=0;
+
             String featureArr[]=searchHotelVO.getFeatureIds().split(",");
-            for (String featuresids:featureArr){
-                if(fr==0){
-                    str.append("featureIds:"+"*,"+featuresids+",*");
-                }else {
-                    str.append(" OR featureIds:"+"*,"+featuresids+",*");
+            for (String featuresids:featureArr) {
+                    if (fr == 0) {
+                        str.append("featureIds:" + "*," + featuresids + ",*");
+                    } else {
+                        str.append(" OR featureIds:" + "*," + featuresids + ",*");
+                    }
+                    fr++;
                 }
-                fr++;
-            }
             str.append(")");
             System.out.println("str111======="+str);
             solrQuery.addFilterQuery(str.toString());
@@ -96,7 +97,6 @@ public class HotelSearchSerivceImpl implements IHotelSearchSerivce {
        //判断城市id
        if(EmptyUtils.isNotEmpty(cityId)){
            solrQuery.addFilterQuery("cityId : "+cityId);
-
        }else {
            return null;
        }
