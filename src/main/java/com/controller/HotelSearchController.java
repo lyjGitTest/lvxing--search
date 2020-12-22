@@ -40,7 +40,7 @@ public class HotelSearchController {
                     return DtoUtil.returnDataSuccess(page);
                }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.getMessage();
                  return DtoUtil.returnFail("系统异常,获取失败","20001");
         }
 
@@ -62,7 +62,7 @@ public class HotelSearchController {
            return DtoUtil.returnDataSuccess(list);
        }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.getMessage();
            return DtoUtil.returnFail("系统异常","20003");
         }
     }
